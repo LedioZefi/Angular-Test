@@ -1,0 +1,109 @@
+<div class="container">
+    <div class="card mt-4">
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Security</th>
+                        <th scope="col" class="text-right">Shares</th>
+                        <th scope="col" class="text-right">Value</th>
+                        <th scope="col" class="text-right">Cashflow</th>
+                        <th scope="col" class="text-right">&nbsp;</th>
+                        <th scope="col" class="text-right">&nbsp;</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let tr of transactionData;let i = index">
+                        <th scope="row">{{tr.id}}</th>
+                        <td>{{tr.date | date}}</td>
+                        <td>{{tr.type}}</td>
+                        <td><span class="text-muted">{{tr.security ? tr.security:'N/A'}}</span></td>
+                        <td class="text-right"><span class="text-muted">{{tr?.shares ? tr.shares:'N/A' }}</span></td>
+                        <td class="text-right">&pound;{{tr.value}}</td>
+                        <td class="text-right" [ngClass]="tr.cashflow >= 0 ? 'text-success' : 'text-danger'">
+                            {{tr.cashflow >= 0 ? '&pound;+':'&pound;'}}{{tr.cashflow}}</td>
+                        <td class="text-right"><a (click)="setEditMode(tr);scroll(target)"
+                                class="btn btn-success">Edit</a></td>
+                        <td class="text-right"><a (click)="deleteTransaction(tr, i)" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="6">Cumulative cashflow</td>
+                        <td class="text-right">&pound;{{cumulativeCashflow}}</td>
+                        <td colspan="2">&nbsp;</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="card mt-4" #target>
+        <div class="card-body">
+            <h3>{{editMode ? 'Edit Transaction '+editId: 'Add Transaction'}}</h3>
+            <form [formGroup]="transactionForm" (ngSubmit)="submit()">
+                <div class="form-group mb-3">
+                    <label for="date">Date</label>
+                    <input type="date" formControlName="date" class="form-control" id="date">
+                    <!-- <div *ngIf="transactionForm.get('password').invalid && transactionForm.get('password').errors && (transactionForm.get('password').dirty || transactionForm.get('password').touched)">
+                        <small class="text-danger" *ngIf="transactionForm.get('password').hasError('required')"> This field is required.</small> 
+                        <small class="text-danger" *ngIf="transactionForm.get('password').hasError('minlength')"> Mininum length should be 4 characters.</small> 
+                    </div> -->
+                </div>
+                <div class="form-group mb-3">
+                    <label for="type">Type</label>
+                    <select id="type" class="form-control" formControlName="type"
+                        (change)="changeFieldsAsPerType(transactionForm.get('type'))">
+                        <option disabled selected>Please select...</option>
+                        <option value="deposit">Deposit</option>
+                        <option value="withdrawal">Withdraw</option>
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="security">Security</label>
+                    <input type="text" formControlName="security" class="form-control" id="security"
+                        [readonly]="disableFields">
+                </div>
+                <div class="form-group mb-3">
+                    <label for="shares">Shares</label>
+                    <input type="number" formControlName="shares" class="form-control" id="shares"
+                        [readonly]="disableFields">
+                    <div
+                        *ngIf="transactionForm.get('shares')?.invalid && transactionForm.get('shares')?.errors && (transactionForm.get('shares')?.dirty || transactionForm.get('shares')?.touched)">
+                        <small class="text-danger" *ngIf="transactionForm.get('shares')?.hasError('min')"> Mininum
+                            value should be 0.</small>
+
+                    </div>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="value">Value</label>
+                    <div class="input-group col-md-12">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">&pound;</span>
+                        </div>
+                        <input type="number" formControlName="value" class="form-control" id="value">
+                        <div
+                            *ngIf="transactionForm.get('value')?.invalid && transactionForm.get('value')?.errors && (transactionForm.get('value')?.dirty || transactionForm.get('value')?.touched)" class="col-md-12">
+                            <small class="text-danger" *ngIf="transactionForm.get('value')?.hasError('min')"> Mininum
+                                value should be 0.</small>
+                            <small class="text-danger" *ngIf="transactionForm.get('value')?.hasError('max')">Value
+                                specified can not exceeds cumulative cashflow.</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary transaction-button"
+                        [disabled]="!transactionForm.valid">{{editMode ? 'Edit Transction':'Add Transaction'}}</button>
+                    <button type="button" class="btn btn-danger transaction-button" (click)="cancel()">Cancel</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
